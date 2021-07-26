@@ -1,0 +1,4 @@
+---
+# vars file for backups3
+region: sfo3
+s3_url: "https://sfo3.digitaloceanspaces.com"

@@ -1,0 +1,20 @@
+---
+- name: litecoin | executables
+  become: true
+  unarchive:
+    remote_src: true
+    src: '{{ litecoin__archive_file }}'
+    dest: /usr/
+    extra_opts:
+      - '--strip-components=1'
+      - '--exclude=litecoin-0.18.1/bin/litecoin-qt'
+      - '--exclude=litecoin-0.18.1/bin/test_litecoin'
+  notify:
+    - litecoin | systemd
+
+- name: litecoin | systemd
+  systemd:
+    name: '{{ litecoin__service }}'
+    daemon_reload: true
+    enabled: true
+    state: restarted

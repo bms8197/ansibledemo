@@ -1,0 +1,11 @@
+---
+# defaults file for backups3
+local_backup_dir: /backupdospace
+env: demo
+bucket_name: 'litecoindata'
+paths_to_backup:
+  path1:
+    path: /var/log/litecoin
+    tag: ltcdata
+aws_access_key: ''
+aws_secret_key: ''

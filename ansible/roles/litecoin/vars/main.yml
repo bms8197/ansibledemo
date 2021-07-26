@@ -1,0 +1,39 @@
+---
+litecoin__user:    litecoin
+litecoin__group:   litecoin
+litecoin__service: litecoin
+
+litecoin__conf_dir: /etc/litecoin
+litecoin__home_dir: /home/litecoin
+litecoin__data_dir: /var/lib/litecoin
+litecoin__run_dir:  /var/run/litecoin
+litecoin__log_dir:  /var/log/litecoin
+
+litecoin__conf_file:    '{{ litecoin__conf_dir }}/litecoin.conf'
+litecoin__archive_file: '{{ litecoin__home_dir }}/archive.tar.gz'
+litecoin__pid_file:     '{{ litecoin__run_dir  }}/litecoin.pid'
+litecoin__log_file:     '{{ litecoin__log_dir  }}/debug.log'
+
+litecoin__archive_url: https://download.litecoin.org/litecoin-0.18.1/linux/litecoin-0.18.1-x86_64-linux-gnu.tar.gz
+litecoin__archive_checksum: sha256:ca50936299e2c5a66b954c266dcaaeef9e91b2f5307069b9894048acf3eb5751
+
+litecoin__rpcauth_url: https://raw.githubusercontent.com/litecoin-project/litecoin/v0.18.1/share/rpcauth/rpcauth.py
+litecoin__rpcauth_checksum: sha256:ada2d492a34ebd3ad1bf79f0e569d32841a75edd0833b26077ab647adadad658
+litecoin__rpcauth_path: /usr/bin/litecoin-rpcauth
+
+build_requirement_packages: [ 'build-essential', 'libtool', 'autotools-dev', 'automake', 'pkg-config', 'bsdmainutils', 'python3']
+dep_packages: ['libssl-dev', 'libevent-dev', 'libboost-system-dev', 'libboost-filesystem-dev', 'libboost-chrono-dev', 'libboost-test-dev', 'libboost-thread-dev']
+
+litecoin__dbcache:       4096
+litecoin__disablewallet: true
+litecoin__testnet:       false
+litecoin__txindex:       true
+litecoin__server:        true
+litecoin__rpcbind:
+  - '0.0.0.0:80'
+litecoin__rpcuser:        
+  - 'demo'
+litecoin__rpcpassword:      
+  - 'tester'
+litecoin__rpcthreads:     8
+

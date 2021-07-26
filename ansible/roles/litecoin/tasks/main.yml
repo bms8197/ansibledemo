@@ -1,0 +1,103 @@
+---
+- name: Group
+  group:
+    name: '{{ litecoin__group }}'
+    system: true
+  notify:
+    - litecoin | systemd
+
+- name: User
+  user:
+    name: '{{ litecoin__user }}'
+    group: '{{ litecoin__group }}'
+    home: '{{ litecoin__home_dir }}'
+    system: true
+    create_home: true
+  notify:
+    - litecoin | systemd
+
+- name: Configuration directory
+  file:
+    state: directory
+    path: '{{ litecoin__conf_dir }}'
+    mode: 'u=rwx,g=rx,o='
+    owner: '{{ litecoin__user }}'
+    group: '{{ litecoin__group }}'
+  notify:
+    - litecoin | systemd
+
+- name: Configuration file
+  template:
+    src: templates/litecoin.conf
+    dest: '{{ litecoin__conf_file }}'
+    mode: 'u=rw,g=,o='
+    owner: '{{ litecoin__user }}'
+    group: '{{ litecoin__group }}'
+  notify:
+    - litecoin | systemd
+
+- name: Data directory
+  file:
+    state: directory
+    path: '{{ litecoin__data_dir }}'
+    mode: 'u=rwx,g=,o='
+    owner: '{{ litecoin__user }}'
+    group: '{{ litecoin__group }}'
+  notify:
+    - litecoin | systemd
+
+- name: Run directory
+  file:
+    state: directory
+    path: '{{ litecoin__run_dir }}'
+    mode: 'u=rwx,g=rx,o='
+    owner: '{{ litecoin__user }}'
+    group: '{{ litecoin__group }}'
+  notify:
+    - litecoin | systemd
+
+- name: Log directory
+  file:
+    state: directory
+    path: '{{ litecoin__log_dir }}'
+    mode: 'u=rwx,g=rx,o='
+    owner: '{{ litecoin__user }}'
+    group: '{{ litecoin__group }}'
+  notify:
+    - litecoin | systemd
+
+# - name: Install required dependencies for builds
+#   apt: name={{ build_requirement_packages }} state=latest
+
+- name: Install required dependencies packages
+  apt: name={{ dep_packages }} state=latest
+
+- name: Archive
+  get_url:
+    url: '{{ litecoin__archive_url }}'
+    checksum: '{{ litecoin__archive_checksum }}'
+    dest: '{{ litecoin__archive_file }}'
+    mode: 'u=rw,g=r,o=r'
+    owner: '{{ litecoin__user }}'
+    group: '{{ litecoin__group }}'
+  notify:
+    - litecoin | executables
+
+- name: RPC auth utility
+  get_url:
+    url: '{{ litecoin__rpcauth_url }}'
+    checksum: '{{ litecoin__rpcauth_checksum }}'
+    dest: '{{ litecoin__rpcauth_path }}'
+    mode: 'u=rwx,g=rx,o=rx'
+    owner: root
+    group: root
+
+- name: Systemd service
+  template:
+    src: templates/litecoin.service
+    dest: /etc/systemd/system/litecoin.service
+    mode: 'u=rw,g=r,o=r'
+    owner: root
+    group: root
+  notify:
+    - litecoin | systemd

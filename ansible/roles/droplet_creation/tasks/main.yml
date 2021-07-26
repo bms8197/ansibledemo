@@ -1,0 +1,47 @@
+---
+- digital_ocean_droplet:
+    unique_name: yes
+    region: '{{ region }}'
+    image: '{{ image }}'
+    wait: yes
+    name: '{{ droplet_name }}{{ item }}'
+    size_id: '{{ size_id }}'
+    state: present
+    ssh_keys: '{{ ssh_keys }}'
+    ipv6: yes
+    wait_timeout: 600
+  register: created_droplets
+  with_sequence: count='{{ droplets_count }}' format="%02d"
+
+- digital_ocean_tag:
+    name: "litecoin"
+    resource_id: '{{ item.data.droplet.id }}'
+    state: present
+  with_items: '{{ created_droplets.results }}'
+
+- digital_ocean_tag:
+    name: "node-server-template"
+    resource_id: '{{ item.data.droplet.id }}'
+    state: present
+  with_items: '{{ created_droplets.results }}'
+  when: droplet_name == 'ltcnodetemplate'
+
+- debug: msg="ssh devops@{{item.data.ip_address}} -i ~/.ssh/id_dodevops"
+  with_items: '{{ created_droplets.results }}'
+
+- name: Wait for server to start
+  local_action: 
+    module: wait_for
+    host: "{{ item.data.ip_address }}"
+    port: 22
+    delay: 5
+    timeout: 600
+    state: started
+  with_items: '{{ created_droplets.results }}'
+
+- name: add hosts
+  add_host:
+    name: "{{ item.data.ip_address }}"
+    groups: "ltc_nodes"
+  when: "{{ item }} is defined"
+  with_items: '{{ created_droplets.results }}'

@@ -1,0 +1,14 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  roles:
+  - droplet_creation
+
+- hosts: ltc_nodes
+  gather_facts: false
+  remote_user: root
+
+  roles:
+    - ubuntu_server

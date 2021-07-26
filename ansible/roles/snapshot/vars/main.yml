@@ -1,0 +1,7 @@
+---
+template_dp_name: 'ltcnodetemplate01'
+create_snapshot: false
+droplet_prefix: 'ltcnode'
+droplets_count: 1
+snapshot_name: 'litecoinnodeimage'
+snapshot_id: 0

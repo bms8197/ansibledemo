@@ -1,0 +1,6 @@
+---
+- name: take snapshot and create droplets from image
+  connection: local
+  hosts: localhost
+  roles: 
+      - { role: snapshot, create_snapshot: false, droplets_count: 4 }

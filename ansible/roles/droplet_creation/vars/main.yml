@@ -1,0 +1,7 @@
+---
+image : 'ubuntu-18-04-x64'
+droplet_name: 'ltcnodetemplate'
+region:  ams3
+ssh_keys: ["e9:12:ef:54:82:4c:68:ba:e1:69:ca:10:2f:2d:50:e3"]
+size_id: 'gd-8vcpu-32gb'
+droplets_count: 1

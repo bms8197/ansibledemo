@@ -1,0 +1,62 @@
+[Unit]
+After=syslog.target network.target
+Description=Litecoin daemon
+
+[Service]
+ExecStart=/usr/bin/litecoind -daemon \
+                             -pid={{ litecoin__pid_file }} \
+                             -conf={{ litecoin__conf_file }} \
+                             -datadir={{ litecoin__data_dir }} \
+                             -debuglogfile={{ litecoin__log_file }}
+
+######################
+# Process management #
+######################
+
+Type=forking
+PIDFile={{ litecoin__pid_file }}
+Restart=on-failure
+
+WorkingDirectory={{ litecoin__run_dir }}
+User={{ litecoin__user }}
+Group={{ litecoin__group }}
+
+StandardError=syslog
+StandardOutput=syslog
+SyslogIdentifier={{ litecoin__service }}
+
+StateDirectory=litecoin
+StateDirectoryMode=0700
+
+ConfigurationDirectory=litecoin
+ConfigurationDirectoryMode=0750
+
+LogsDirectory=litecoin
+LogsDirectoryMode=0750
+
+RuntimeDirectory=litecoin
+RuntimeDirectoryMode=0750
+
+######################
+# Hardening measures #
+######################
+
+# Provide a private /tmp and /var/tmp.
+PrivateTmp=true
+
+# Mount /usr, /boot/ and /etc read-only for the process.
+ProtectSystem=full
+
+# Disallow the process and all of its children to gain
+# new privileges through execve().
+NoNewPrivileges=true
+
+# Use a new /dev namespace only populated with API pseudo devices
+# such as /dev/null, /dev/zero and /dev/random.
+PrivateDevices=true
+
+# Deny the creation of writable and executable memory mappings.
+MemoryDenyWriteExecute=true
+
+[Install]
+WantedBy=multi-user.target

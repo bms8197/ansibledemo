@@ -1,0 +1,34 @@
+---
+- name: Gather information about template droplet
+  community.digitalocean.digital_ocean_droplet_info:
+    name: "{{ template_dp_name }}"
+  register: templatedp
+
+- name: Snapshot a Droplet
+  community.digitalocean.digital_ocean_snapshot:
+    state: present
+    snapshot_type: droplet
+    droplet_id: "{{ item.id }}"
+    snapshot_name: "{{ snapshot_name }}"
+    wait_timeout: 300
+  with_items: "{{ templatedp.data }}"
+  register: snapshotcreated
+  when: create_snapshot == true
+
+- name: Gather information about a specific droplet by name
+  community.digitalocean.digital_ocean_account_info:
+    oauth_token: "{{ oauth_token }}"
+    name: "{{ template_dp_name }}"
+
+- debug: msg="{{ snapshotcreated }}"
+
+- debug: msg="{{ snapshotcreated.results[0].item.snapshot_ids[-1] }}"
+
+- name: create droplet using image
+  include_role:
+    name: droplet_creation
+  vars:
+    image: "{{ templatedp.data.item.snapshot_ids[-1] if not create_snapshot else snapshot_id }}"
+    droplets_count: "{{ droplets_count }}"
+    droplet_name: "{{ droplet_prefix }}"
+  when: create_droplets == true
