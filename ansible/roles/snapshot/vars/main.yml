@@ -1,7 +1,11 @@
 ---
 template_dp_name: 'ltcnodetemplate01'
-create_snapshot: false
 droplet_prefix: 'ltcnode'
 droplets_count: 1
 snapshot_name: 'litecoinnodeimage'
 snapshot_id: 0
+litecoin__service: litecoin
+create_snapshot:  false
+ready_template_node: false
+create_nodes_from_snapshot: false
+restore_data: false

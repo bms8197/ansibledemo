@@ -36,4 +36,5 @@ litecoin__rpcuser:
 litecoin__rpcpassword:      
   - 'tester'
 litecoin__rpcthreads:     8
-
+litecoin__rpcallowip:
+  - '0.0.0.0/0'

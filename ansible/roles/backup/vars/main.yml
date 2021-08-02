@@ -1,4 +1,10 @@
 ---
 # vars file for backups3
-region: sfo3
-s3_url: "https://sfo3.digitaloceanspaces.com"
+local_backup_dir: /backupdospace
+env: demo
+bucket_name: 'litecoindata'
+backup_file_name: 'ltc_data_backup'
+paths_to_backup:
+  path1:
+    path: /var/lib/litecoin
+    tag: ltcdata

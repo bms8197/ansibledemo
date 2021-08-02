@@ -42,6 +42,6 @@
 - name: add hosts
   add_host:
     name: "{{ item.data.ip_address }}"
-    groups: "ltc_nodes"
+    groups: "{{ inventory_group_name }}"
   when: "{{ item }} is defined"
   with_items: '{{ created_droplets.results }}'

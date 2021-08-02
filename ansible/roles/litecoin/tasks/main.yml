@@ -66,9 +66,6 @@
   notify:
     - litecoin | systemd
 
-# - name: Install required dependencies for builds
-#   apt: name={{ build_requirement_packages }} state=latest
-
 - name: Install required dependencies packages
   apt: name={{ dep_packages }} state=latest
 

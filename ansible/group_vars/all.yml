@@ -1,0 +1,16 @@
+---
+
+litecoin__user:    litecoin
+litecoin__group:   litecoin
+litecoin__service: litecoin
+
+litecoin__conf_dir: /etc/litecoin
+litecoin__home_dir: /home/litecoin
+litecoin__data_dir: /var/lib/litecoin
+litecoin__run_dir:  /var/run/litecoin
+litecoin__log_dir:  /var/log/litecoin
+
+litecoin__conf_file:    '{{ litecoin__conf_dir }}/litecoin.conf'
+litecoin__archive_file: '{{ litecoin__home_dir }}/archive.tar.gz'
+litecoin__pid_file:     '{{ litecoin__run_dir  }}/litecoin.pid'
+litecoin__log_file:     '{{ litecoin__log_dir  }}/debug.log'

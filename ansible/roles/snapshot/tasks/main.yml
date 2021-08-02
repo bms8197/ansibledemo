@@ -3,6 +3,21 @@
   community.digitalocean.digital_ocean_droplet_info:
     name: "{{ template_dp_name }}"
   register: templatedp
+  when: create_snapshot
+
+- name: stop service
+  systemd:
+    name: '{{ litecoin__service }}'
+    enabled: false
+    state: stopped
+  when: ready_template_node
+
+- name: Remove Data directory
+  become: true
+  file:
+    state: absent
+    path: '{{ litecoin__data_dir }}'
+  when: ready_template_node
 
 - name: Snapshot a Droplet
   community.digitalocean.digital_ocean_snapshot:
@@ -13,22 +28,22 @@
     wait_timeout: 300
   with_items: "{{ templatedp.data }}"
   register: snapshotcreated
-  when: create_snapshot == true
+  when: create_snapshot
 
 - name: Gather droplet's snapshot list
   community.digitalocean.digital_ocean_droplet_info:
     name: "{{ template_dp_name }}"
   register: snapshotlist
+  when: create_nodes_from_snapshot
 
 - set_fact:
     snapshotidfromdroplet: "{{ item.snapshot_ids[-1] }}"
   with_items: "{{ snapshotlist.data }}"
-
-- debug: msg="{{ snapshotcreated.results[0].item.snapshot_ids[-1]  }}"
-  when: create_snapshot == true
+  when: create_nodes_from_snapshot
 
 - debug: msg="{{ item.snapshot_ids[-1] }}"
   with_items: "{{ snapshotlist.data }}"
+  when: create_nodes_from_snapshot
 
 - name: create droplet using image
   include_role:
@@ -37,4 +52,11 @@
     image: "{{ snapshotidfromdroplet if snapshot_id ==0 else snapshot_id}}"
     droplets_count: "{{ droplets_count }}"
     droplet_name: "{{ droplet_prefix }}"
-  when: create_snapshot != true
+  when: create_nodes_from_snapshot
+
+- name: restore data dir from backup
+  include_role:
+    name: backup
+  vars:
+    restore: true
+  when: restore_data

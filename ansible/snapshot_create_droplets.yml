@@ -1,0 +1,13 @@
+---
+- name: take snapshot and create droplets from image
+  connection: local
+  hosts: localhost
+  roles: 
+      - { role: snapshot, create_nodes_from_snapshot: true, droplets_count: 4, inventory_group_name: created_droplets }
+      
+- hosts: created_droplets
+  gather_facts: false
+  remote_user: root
+
+  roles:
+    - { role: snapshot, restore_data: true}

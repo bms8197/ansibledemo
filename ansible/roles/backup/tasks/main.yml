@@ -1,5 +1,4 @@
 ---
-# tasks file for backups3
 - name: Verify python dependencies for aws s3
   pip: name={{ item }}
   with_items:
@@ -12,37 +11,58 @@
   file:
     path: "{{ local_backup_dir }}"
     state: directory
+    mode: o+rwx
 
 - name: Create tar file for Paths
   become: true
   archive:
     path: "{{ item.value.path }}"
-    dest: /{{ local_backup_dir }}/{{ item.value.tag }}-backup-{{ env }}-{{ ansible_hostname }}-{{ ansible_date_time.date }}.tar.gz
+    dest: /{{ local_backup_dir }}/{{ backup_file_name }}.tar.gz
   with_dict: "{{ paths_to_backup }}"
+  when: restore == false
 
 - name: Copy tar file to s3 bucket
   aws_s3:
     aws_access_key: "{{ aws_access_key }}"
     aws_secret_key: "{{ aws_secret_key }}"
     bucket: "{{ bucket_name }}"
-    object: /backups/{{ env }}/{{ item.value.tag }}-{{ env }}-backups/{{ item.value.tag }}-backup-{{ env}}-{{ ansible_hostname }}-{{ ansible_date_time.date }}.tar.gz
-    src: /{{ local_backup_dir }}/{{ item.value.tag }}-backup-{{ env }}-{{ ansible_hostname }}-{{ ansible_date_time.date }}.tar.gz
+    object: /backups/ltcdatabackup/{{ backup_file_name }}.tar.gz
+    src: /{{ local_backup_dir }}/{{ backup_file_name }}.tar.gz
     mode: put
     region: "{{ region }}"
     s3_url: "{{ s3_url }}"
-    rgw: true
-  with_dict: "{{ paths_to_backup }}"
+  when: restore == false
 
-- name: Find older backups
-  find:
-    paths: "{{ local_backup_dir }}"
-    patterns: '*-backup-*.tar.gz'
-    age: 1w
-    age_stamp: mtime
-  register: old_backups
+- name: Download Backup
+  amazon.aws.aws_s3:
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    bucket: "{{ bucket_name }}"
+    object: /backups/ltcdatabackup/{{ backup_file_name }}.tar.gz
+    dest: /{{ local_backup_dir }}/{{ backup_file_name }}.tar.gz
+    mode: get
+    region: "{{ region }}"
+    s3_url: "{{ s3_url }}"
+  when: restore == true
 
-- name: Delete older backups
+- name: Data directory
+  become: true
   file:
-    path: "{{ item.path }}"
-    state: absent
-  with_items: "{{ old_backups.files }}"
+    state: directory
+    path: '{{ litecoin__data_dir }}'
+    mode: 'u=rwx,g=,o='
+    owner: '{{ litecoin__user }}'
+    group: '{{ litecoin__group }}'
+  when: restore == true
+
+- name: Extract archive
+  become: true
+  unarchive:
+    remote_src: true
+    src: /{{ local_backup_dir }}/{{ backup_file_name }}.tar.gz
+    dest: "{{ item.value.path }}"
+    extra_opts: [--strip-components=1]
+  when: restore == true
+  with_dict: "{{ paths_to_backup }}"
+  notify:
+    - litecoin | systemd

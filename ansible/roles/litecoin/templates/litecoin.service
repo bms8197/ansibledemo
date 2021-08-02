@@ -18,7 +18,7 @@ PIDFile={{ litecoin__pid_file }}
 Restart=on-failure
 
 WorkingDirectory={{ litecoin__run_dir }}
-User={{ litecoin__user }}
+User=root
 Group={{ litecoin__group }}
 
 StandardError=syslog

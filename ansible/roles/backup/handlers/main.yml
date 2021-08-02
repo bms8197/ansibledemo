@@ -1,0 +1,7 @@
+---
+- name: litecoin | systemd
+  become: true
+  systemd:
+    name: '{{ litecoin__service }}'
+    enabled: true
+    state: started
